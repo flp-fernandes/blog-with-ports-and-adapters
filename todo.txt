@@ -1,0 +1,8 @@
+- login:
+  * adicionar no type de usuario senha
+  * fazer hash dessa senha e salvar no banco
+  * criar rota de login que devolve token
+  * criar middleware de validação de token para rotas
+
+- tratamento de erro personalizado
+  * usar exemplo do dict
