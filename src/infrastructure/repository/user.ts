@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import R from 'ramda';
-import { type IMysqlAdapter } from '../../types/infrastructure';
-import { type IUserRepository, type User } from '../../types/user';
-import { DuplicateUserEmail, FailedToFindUser, FailedToSaveUser, InvalidUserToFind } from '../../util/error';
+import { IMysqlAdapter } from '../../types/infrastructure';
+import { IUserRepository, User } from '../../types/user';
+import {
+  /*DuplicateUserEmail,*/
+  FailedToFindUser,
+  FailedToSaveUser,
+  InvalidUserToFind
+} from '../../util/error';
 import { Logger } from '../../util/logger';
+import { DataError, checkAndThrowUserError } from './util/check-error';
 
 export interface UserRepositoryContext {
   mysqlAdapter: IMysqlAdapter;
@@ -19,11 +26,7 @@ export class UserRepository implements IUserRepository {
 	
   async saveUser (user: User): Promise<User> {
     try {
-      const [isUserCreated] = await this.mysqlAdapter.db.insert({ ...user }).onConflict('email').ignore();
-
-      if (!isUserCreated) {
-        throw new DuplicateUserEmail('Failed to save user at database');
-      }
+      await this.mysqlAdapter.db.insert({ ...user });
 
       const createdUser = await this.mysqlAdapter.db.select().where({ email: user.email }).first();
 			
@@ -31,12 +34,8 @@ export class UserRepository implements IUserRepository {
 			
       return createdUser;
     } catch (error) {
-      if (error instanceof DuplicateUserEmail) {
-        this.logger.console().error('Duplicate entry');
-				
-        throw error;
-      }
-			
+      checkAndThrowUserError(error as DataError);
+
       this.logger.console().error(`Failed to save user at database. Error: ${error}`);
 			
       throw new FailedToSaveUser('Failed to save user at database');

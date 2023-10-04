@@ -62,9 +62,8 @@ export class FailedToSaveUser extends CustomError {
 }
 
 export class DuplicateUserEmail extends CustomError {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor (msg: string, details: null | any[] = null) {
-    super('FAILED_TO_SAVE_USER_DUPLICATE_EMAIL', msg, details);
+  constructor (msg: string) {
+    super('FAILED_TO_SAVE_USER_DUPLICATE_EMAIL', msg);
   }
 }
 
