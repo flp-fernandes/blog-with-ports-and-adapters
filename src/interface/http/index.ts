@@ -3,16 +3,16 @@ import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
 
-import { type Container } from '../../types/core';
-import { type IHttpInterface, type IHttpRoute } from '../../types/interface';
-import { UserController } from './Controller/user';
+import { Container } from '../../types/core';
+import { IHttpInterface, IHttpRoute } from '../../types/interface';
+import { UserController } from './controller/user';
 import { errorHandler } from './middleware/errorHandler';
 import { validator } from './middleware/validator';
-import { PostController } from './Controller/post';
+import { PostController } from './controller/post';
 
 interface Config {
-  env: typeof import('../../util/env').env
-  coreContainer: Container
+  env: typeof import('../../util/env').env;
+  coreContainer: Container;
 }
 
 export class HttpInterface implements IHttpInterface {
@@ -20,12 +20,12 @@ export class HttpInterface implements IHttpInterface {
   private readonly coreContainer: Config['coreContainer'];
   private readonly env: Config['env'];
 
-  constructor (config: Config) {
+  constructor(config: Config) {
     this.coreContainer = config.coreContainer;
     this.env = config.env;
   }
 
-  initApp () {
+  initApp() {
     this.app = express();
 
     this.app.use(
@@ -33,7 +33,7 @@ export class HttpInterface implements IHttpInterface {
       cors(),
       compression(),
       express.json({
-        limit: this.env.httpBodyLimit
+        limit: this.env.httpBodyLimit,
       })
     );
 
@@ -43,17 +43,17 @@ export class HttpInterface implements IHttpInterface {
     this.app.use(errorHandler);
   }
 
-  setupRoutes () {
+  setupRoutes() {
     [
       new UserController({
         coreContainer: this.coreContainer,
-        validator
+        validator,
       }),
 
       new PostController({
         coreContainer: this.coreContainer,
-        validator
-      })
+        validator,
+      }),
     ].forEach((route: IHttpRoute) => {
       const router = express.Router({ mergeParams: true });
       route.register(router);
@@ -61,7 +61,7 @@ export class HttpInterface implements IHttpInterface {
     });
   }
 
-  setupNotFound () {
+  setupNotFound() {
     this.app?.use(
       '*',
       (
@@ -74,7 +74,7 @@ export class HttpInterface implements IHttpInterface {
     );
   }
 
-  serve (): void {
+  serve(): void {
     this.initApp();
 
     this.app?.listen(this.env.httpPort);

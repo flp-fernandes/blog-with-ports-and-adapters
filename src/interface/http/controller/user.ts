@@ -1,5 +1,11 @@
 import { NextFunction } from 'express';
-import { HttpControllerConfig, HttpRequest, HttpResponse, HttpRouter, IHttpRoute } from '../../../types/interface';
+import {
+  HttpControllerConfig,
+  HttpRequest,
+  HttpResponse,
+  HttpRouter,
+  IHttpRoute,
+} from '../../../types/interface';
 import { User } from '../../../types/user';
 import { createUserSchema, findUserSchema } from '../schema/user';
 import { Logger } from '../../../util/logger';
@@ -9,33 +15,28 @@ export class UserController implements IHttpRoute {
   private readonly _validator: HttpControllerConfig['validator'];
   private readonly userUseCase: HttpControllerConfig['coreContainer']['userUseCase'];
 
-  constructor ({ coreContainer, validator }: HttpControllerConfig) {
+  constructor({ coreContainer, validator }: HttpControllerConfig) {
     this._validator = validator;
     this.userUseCase = coreContainer.userUseCase;
   }
 
-  register (router: HttpRouter): void {
+  register(router: HttpRouter): void {
     router
       .route('/v1/user')
-      .post(
-        this._validator(createUserSchema),
-        this.createUser.bind(this)
-      )
-      .get(
-        this._validator(findUserSchema),
-        this.findUser.bind(this)
-      );
+      .post(this._validator(createUserSchema), this.createUser.bind(this))
+      .get(this._validator(findUserSchema), this.findUser.bind(this));
   }
 
-  async createUser (req: HttpRequest, res: HttpResponse, next: NextFunction) {
+  async createUser(req: HttpRequest, res: HttpResponse, next: NextFunction) {
     try {
       this.logger.console().info('Start user creation');
-			
-      const { name, email } = req.body;
+
+      const { name, email, password } = req.body;
 
       const user: User = {
         name,
-        email
+        email,
+        password,
       };
 
       const userCreated = await this.userUseCase.createUser(user);
@@ -50,20 +51,16 @@ export class UserController implements IHttpRoute {
     }
   }
 
-  async findUser (req: HttpRequest, res: HttpResponse, next: NextFunction) {
+  async findUser(req: HttpRequest, res: HttpResponse, next: NextFunction) {
     try {
       this.logger.console().info('Start find user');
 
-      const {
-        id,
-        name,
-        email
-      } = req.query;
+      const { id, name, email } = req.query;
 
       const user = {
         id: typeof id == 'string' ? parseInt(id, 10) : undefined,
         name,
-        email
+        email,
       } as unknown as Partial<User>;
 
       const result = await this.userUseCase.find(user);

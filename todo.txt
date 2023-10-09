@@ -5,4 +5,4 @@
   * criar middleware de validação de token para rotas
 
 - tratamento de erro personalizado
-  * usar exemplo do dict
+  * usar exemplo do dict - DONE

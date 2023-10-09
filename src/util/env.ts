@@ -19,7 +19,10 @@ const env = {
   /* Application Config */
   httpActive: process.env.HTTP_ACTIVE === 'true',
   amqpActive: process.env.AMQP_ACTIVE === 'true',
-  cronActive: process.env.CRON_ACTIVE === 'true'
+  cronActive: process.env.CRON_ACTIVE === 'true',
+
+  /* Shared Key */
+  sharedKey: process.env.SHARED_KEY,
 };
 
 export { env };

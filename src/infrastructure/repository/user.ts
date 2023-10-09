@@ -6,7 +6,7 @@ import {
   /*DuplicateUserEmail,*/
   FailedToFindUser,
   FailedToSaveUser,
-  InvalidUserToFind
+  InvalidUserToFind,
 } from '../../util/error';
 import { Logger } from '../../util/logger';
 import { DataError, checkAndThrowUserError } from './util/check-error';
@@ -19,36 +19,37 @@ export class UserRepository implements IUserRepository {
   private readonly logger = new Logger(UserRepository.name);
   private readonly mysqlAdapter: IMysqlAdapter;
 
-  constructor ({ mysqlAdapter }: UserRepositoryContext) {
+  constructor({ mysqlAdapter }: UserRepositoryContext) {
     this.mysqlAdapter = mysqlAdapter;
     this.mysqlAdapter.tableName = 'user';
   }
-	
-  async saveUser (user: User): Promise<User> {
+
+  async saveUser(user: User): Promise<User> {
     try {
       await this.mysqlAdapter.db.insert({ ...user });
 
-      const createdUser = await this.mysqlAdapter.db.select().where({ email: user.email }).first();
-			
+      const createdUser = await this.mysqlAdapter.db
+        .select()
+        .where({ email: user.email })
+        .first();
+
       this.logger.console().info('Created user on database');
-			
+
       return createdUser;
     } catch (error) {
       checkAndThrowUserError(error as DataError);
 
-      this.logger.console().error(`Failed to save user at database. Error: ${error}`);
-			
+      this.logger
+        .console()
+        .error(`Failed to save user at database. Error: ${error}`);
+
       throw new FailedToSaveUser('Failed to save user at database');
     }
   }
-	
-  async find (params: Partial<User>): Promise<User[]> {
+
+  async find(params: Partial<User>): Promise<User[]> {
     try {
-      const {
-        id,
-        name,
-        email,
-      } = params;
+      const { id, name, email } = params;
 
       console.log(params);
 
